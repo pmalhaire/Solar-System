@@ -44,9 +44,64 @@ void init(void)
     glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 }
 
+void draw_sun(void)
+{
+    // define the precision of sphere
+    GLint slice, stacks = (60, 60);
+    // Draw Sun
+    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, sun->getTextureHandle());
+    GLUquadricObj *quadric = gluNewQuadric();
+    gluQuadricTexture(quadric, true);
+    gluQuadricNormals(quadric, GLU_SMOOTH);
+    gluSphere(quadric, 4.0, slice, stacks);
+}
+
+void draw_earth(void)
+{
+    // define the precision of sphere
+    GLint slice, stacks = (20, 20);
+    // Draw Earth
+    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
+    glTranslatef(10.0, 0.0, 0.0);
+    glRotatef((GLfloat)day, 0.0, 1.0, 0.0);
+    glBindTexture(GL_TEXTURE_2D, earth->getTextureHandle());
+    GLUquadricObj *quadric = gluNewQuadric();
+    gluQuadricTexture(quadric, true);
+    gluQuadricNormals(quadric, GLU_SMOOTH);
+    gluSphere(quadric, 0.7, slice, stacks);
+}
+
+void draw_moon(void)
+{
+    // define the precision of sphere
+    GLint slice, stacks = (10, 10);
+    // Draw Moon
+    glTranslatef(1.0, 0.0, 0.0);
+    glRotatef((GLfloat)month, 0.0, 1.0, 0.0);
+    glBindTexture(GL_TEXTURE_2D, moon->getTextureHandle());
+    GLUquadricObj *quadric = gluNewQuadric();
+    gluQuadricTexture(quadric, true);
+    gluQuadricNormals(quadric, GLU_SMOOTH);
+    gluSphere(quadric, 0.2, slice, stacks);
+}
+
+void draw_stars(void)
+{
+    glColor3ub(255, 255, 255);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glVertexPointer(2, GL_FLOAT, sizeof(Star), &stars[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Star), &stars[0].r);
+    glPointSize(3.0);
+    glDrawArrays(GL_POINTS, 0, stars.size());
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+}
+
 void display(void)
 {
-
     // Set material properties
     GLfloat qaWhite[] = {1.0, 1.0, 1.0, 1.0};
 
@@ -58,40 +113,12 @@ void display(void)
     // glNormal3f(1.0,0.0,1.0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    draw_stars();
     glPushMatrix();
 
-    // Draw Stars
-    glColor3ub(255, 255, 255);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(2, GL_FLOAT, sizeof(Star), &stars[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Star), &stars[0].r);
-    glPointSize(3.0);
-    glDrawArrays(GL_POINTS, 0, stars.size());
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-
-    // Draw Sun
-    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, sun->getTextureHandle());
-    GLUquadricObj *quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, true);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    gluSphere(quadric, 4.0, 30, 30);
-
-    // Draw Earth
-    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
-    glTranslatef(10.0, 0.0, 0.0);
-    glRotatef((GLfloat)day, 0.0, 1.0, 0.0);
-    glBindTexture(GL_TEXTURE_2D, earth->getTextureHandle());
-    gluSphere(quadric, 0.7, 30, 30);
-
-    // Draw Moon
-    glTranslatef(1.0, 0.0, 0.0);
-    glRotatef((GLfloat)month, 0.0, 1.0, 0.0);
-    glBindTexture(GL_TEXTURE_2D, moon->getTextureHandle());
-    gluSphere(quadric, 0.2, 30, 30);
+    draw_sun();
+    draw_earth();
+    draw_moon();
 
     glPopMatrix();
     glPushMatrix();
