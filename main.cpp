@@ -1,8 +1,10 @@
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <vector>
 #include <cstdlib>
-#include "tga.h"
+#include <cstdio>
+#include "./tga.h"
 
 static int day = 0, month = 0, year = 0;
 
@@ -17,14 +19,32 @@ TGA *sun;
 TGA *earth;
 TGA *moon;
 
+void GLAPIENTRY
+MessageCallback(GLenum source,
+                GLenum type,
+                GLuint id,
+                GLenum severity,
+                GLsizei length,
+                const GLchar *message,
+                const void *userParam)
+{
+    fprintf(stderr,
+            "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+            type, severity, message);
+}
+
 void init(void)
 {
+    // During init, enable debug output
+    glewInit();
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, 0);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_FLAT);
     sun = new TGA("images/sun.tga");
     moon = new TGA("images/moon.tga");
     earth = new TGA("images/earth.tga");
-    // glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
 
     // Lighting set up
     glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
@@ -101,6 +121,7 @@ void draw_stars(void)
 
 void display(void)
 {
+    glPushMatrix();
     // Set material properties
     GLfloat qaWhite[] = {1.0, 1.0, 1.0, 1.0};
 
@@ -109,12 +130,8 @@ void display(void)
     glMaterialfv(GL_FRONT, GL_SPECULAR, qaWhite);
     glMaterialf(GL_FRONT, GL_SHININESS, 60.0);
 
-    // glNormal3f(1.0,0.0,1.0);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw_stars();
-    glPushMatrix();
-
     glEnable(GL_TEXTURE_2D);
 
     glRotatef((GLfloat)day, 0.0, 1.0, 0.0);
@@ -132,16 +149,12 @@ void display(void)
     draw_moon();
 
     glPopMatrix();
-    glPushMatrix();
     glFlush();
     glutSwapBuffers();
 }
 
 void reshape(int w, int h)
 {
-    if (h == 0)
-        h = 1;
-    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glViewport(0, 0, w, h);
     gluPerspective(50.0, w / (GLfloat)h, 3.0, 90.0);
