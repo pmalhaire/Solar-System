@@ -117,13 +117,17 @@ void display(void)
 
     glEnable(GL_TEXTURE_2D);
 
+    glRotatef((GLfloat)day, 0.0, 1.0, 0.0);
+    glRotatef(90.0, 1.0, 0.0, 0.0);
     draw_sun();
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    glRotatef(-(GLfloat)day, 0.0, 1.0, 0.0);
 
-    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
+    glRotatef((GLfloat)day, 0.0, 1.0, 0.0);
     glTranslatef(10.0, 0.0, 0.0);
     draw_earth();
 
-    glRotatef((GLfloat)month, 0.0, 1.0, 0.0);
+    glRotatef((GLfloat)((day % 30) * 12.0), 0.0, 1.0, 0.0);
     glTranslatef(1.0, 0.0, 0.0);
     draw_moon();
 
@@ -147,9 +151,10 @@ void reshape(int w, int h)
 
 void idleFunc()
 {
-    year = (year + 1) % 360;
-    month = (month + 3) % 360;
-    day = (day + 10) % 360;
+    day = day % 360 + 1;
+    month = day / 12;
+    if (day == 360)
+        ++year;
 
     glutPostRedisplay();
 }
