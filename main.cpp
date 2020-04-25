@@ -1,3 +1,6 @@
+#define GL_GLEXT_PROTOTYPES
+
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <vector>
@@ -9,7 +12,7 @@ static int day = 0, month = 0, year = 0;
 struct Star
 {
     float x, y;
-    unsigned char r, g, b, a;
+    //unsigned char r, g, b, a;
 };
 std::vector<Star> stars;
 
@@ -42,6 +45,10 @@ void init(void)
     // Set the light position
     GLfloat qaLightPosition[] = {0.0, 0.0, 0.0, 1.0};
     glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
+    glewInit();
+    GLuint VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 }
 
 void display(void)
@@ -62,14 +69,18 @@ void display(void)
 
     // Draw Stars
     glColor3ub(255, 255, 255);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(2, GL_FLOAT, sizeof(Star), &stars[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Star), &stars[0].r);
-    glPointSize(3.0);
-    glDrawArrays(GL_POINTS, 0, stars.size());
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_STATIC_DRAW);
+
+#define N_VERTICES 4
+#define V_SIZE 2
+    float vertices[N_VERTICES * V_SIZE] = {
+        -0.8, -0.8, /* sommet 0 */
+        0.8, -0.8,  /* sommet 1 */
+        0.8, 0.8,   /* sommet 2 */
+        -0.8, 0.8   /* sommet 3 */
+    };
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glDisableClientState(GL_STATIC_DRAW);
 
     // Draw Sun
     glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
@@ -128,15 +139,15 @@ int main(int argc, char **argv)
     glutCreateWindow("Solar system");
 
     // Stars
-    for (size_t i = 0; i < 1000; ++i)
+    for (size_t i = 0; i < 1; ++i)
     {
         Star star;
         star.x = -50 + (rand() % 100);
         star.y = -50 + (rand() % 100);
-        star.r = 255;
-        star.g = 255;
-        star.b = 255;
-        star.a = 255;
+        // star.r = 255;
+        // star.g = 255;
+        // star.b = 255;
+        // star.a = 255;
         stars.push_back(star);
     }
 
