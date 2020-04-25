@@ -44,47 +44,46 @@ void init(void)
     glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 }
 
+void create_sphere(GLint slice, GLint stacks, GLdouble radius)
+{
+    GLUquadricObj *quadric = gluNewQuadric();
+    gluQuadricTexture(quadric, true);
+    gluQuadricNormals(quadric, GLU_SMOOTH);
+    gluSphere(quadric, radius, slice, stacks);
+}
+
 void draw_sun(void)
 {
     // define the precision of sphere
     GLint slice, stacks = (60, 60);
-    // Draw Sun
-    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
-    glEnable(GL_TEXTURE_2D);
+    GLdouble radius = 4;
+
     glBindTexture(GL_TEXTURE_2D, sun->getTextureHandle());
-    GLUquadricObj *quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, true);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    gluSphere(quadric, 4.0, slice, stacks);
+
+    create_sphere(slice, stacks, radius);
 }
 
 void draw_earth(void)
 {
     // define the precision of sphere
     GLint slice, stacks = (20, 20);
+    GLdouble radius = 0.7;
     // Draw Earth
-    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
-    glTranslatef(10.0, 0.0, 0.0);
-    glRotatef((GLfloat)day, 0.0, 1.0, 0.0);
+
     glBindTexture(GL_TEXTURE_2D, earth->getTextureHandle());
-    GLUquadricObj *quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, true);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    gluSphere(quadric, 0.7, slice, stacks);
+
+    create_sphere(slice, stacks, radius);
 }
 
 void draw_moon(void)
 {
     // define the precision of sphere
     GLint slice, stacks = (10, 10);
-    // Draw Moon
-    glTranslatef(1.0, 0.0, 0.0);
-    glRotatef((GLfloat)month, 0.0, 1.0, 0.0);
+    GLdouble radius = 0.2;
+
     glBindTexture(GL_TEXTURE_2D, moon->getTextureHandle());
-    GLUquadricObj *quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, true);
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    gluSphere(quadric, 0.2, slice, stacks);
+
+    create_sphere(slice, stacks, radius);
 }
 
 void draw_stars(void)
@@ -116,8 +115,16 @@ void display(void)
     draw_stars();
     glPushMatrix();
 
+    glEnable(GL_TEXTURE_2D);
+
     draw_sun();
+
+    glRotatef((GLfloat)year, 0.0, 1.0, 0.0);
+    glTranslatef(10.0, 0.0, 0.0);
     draw_earth();
+
+    glRotatef((GLfloat)month, 0.0, 1.0, 0.0);
+    glTranslatef(1.0, 0.0, 0.0);
     draw_moon();
 
     glPopMatrix();
@@ -141,8 +148,9 @@ void reshape(int w, int h)
 void idleFunc()
 {
     year = (year + 1) % 360;
-    day = (day + 10) % 360;
     month = (month + 3) % 360;
+    day = (day + 10) % 360;
+
     glutPostRedisplay();
 }
 
